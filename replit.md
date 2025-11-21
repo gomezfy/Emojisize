@@ -114,6 +114,10 @@ ADMIN_USERS=(usernames ou IDs separados por vírgula)
 ```
 
 ## Mudanças Recentes
+- 21/11/2025: **Acesso automático para usuários OAuth** ✅
+  - Todos usuários que fazem login via Discord/GitHub ganham 30min de acesso automático
+  - Admins continuam com acesso ilimitado (1 ano)
+  - Removida necessidade de assistir anúncio no primeiro login
 - 21/11/2025: **Correção OAuth para VertraWeb** 🔧
   - Corrigido problema de redirecionamento OAuth (sameSite: lax)
   - Correção de URLs de callback com barras duplas `//`

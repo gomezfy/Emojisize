@@ -214,9 +214,11 @@ app.get('/auth/discord/callback',
         if (isAdmin(req.user)) {
             req.session.accessExpiry = Date.now() + (365 * 24 * 60 * 60 * 1000);
             console.log(`🔑 Admin detectado: ${req.user.username} - Acesso ilimitado concedido`);
+        } else {
+            req.session.accessExpiry = Date.now() + (30 * 60 * 1000);
+            console.log(`✅ Login via Discord: ${req.user.username} - 30 minutos de acesso concedido`);
         }
         
-        console.log(`✅ Login via Discord: ${req.user.username}`);
         res.redirect('/');
     }
 );
@@ -232,9 +234,11 @@ app.get('/auth/github/callback',
         if (isAdmin(req.user)) {
             req.session.accessExpiry = Date.now() + (365 * 24 * 60 * 60 * 1000);
             console.log(`🔑 Admin detectado: ${req.user.username} - Acesso ilimitado concedido`);
+        } else {
+            req.session.accessExpiry = Date.now() + (30 * 60 * 1000);
+            console.log(`✅ Login via GitHub: ${req.user.username} - 30 minutos de acesso concedido`);
         }
         
-        console.log(`✅ Login via GitHub: ${req.user.username}`);
         res.redirect('/');
     }
 );
