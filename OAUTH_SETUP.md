@@ -1,5 +1,14 @@
 # 🔐 Configuração OAuth para VertraCloud
 
+## ⚠️ IMPORTANTE: Primeiro, obtenha a URL do seu projeto
+
+Antes de configurar o OAuth, você precisa:
+1. Criar um projeto no **VertraCloud**: https://vertracloud.app
+2. Anotar a URL do seu projeto (será algo como: `seu-projeto.vertracloud.app`)
+3. Depois, volte aqui e use essa URL nas configurações abaixo
+
+---
+
 ## Pré-requisitos
 
 Antes de hospedar no VertraCloud, você precisa configurar aplicações OAuth no Discord e GitHub.
@@ -12,10 +21,11 @@ Antes de hospedar no VertraCloud, você precisa configurar aplicações OAuth no
 4. Vá para **OAuth2** → **General**
 5. Copie o **Client ID**
 6. Clique em **"Reset Secret"** e copie o **Client Secret**
-7. Em **Redirects**, adicione:
+7. Em **Redirects**, adicione a URL do seu projeto VertraCloud:
    ```
-   https://seusite.vertracloud.com/auth/discord/callback
+   https://SEU-PROJETO.vertracloud.app/auth/discord/callback
    ```
+   ⚠️ **Substitua** `SEU-PROJETO` pelo nome real do seu projeto!
 8. Salve as mudanças
 
 ## 2️⃣ Criar Aplicação GitHub
@@ -24,8 +34,10 @@ Antes de hospedar no VertraCloud, você precisa configurar aplicações OAuth no
 2. Clique em **"New OAuth App"**
 3. Preencha:
    - **Application name**: Emoji Size
-   - **Homepage URL**: https://seusite.vertracloud.com
-   - **Authorization callback URL**: `https://seusite.vertracloud.com/auth/github/callback`
+   - **Homepage URL**: `https://SEU-PROJETO.vertracloud.app`
+   - **Authorization callback URL**: `https://SEU-PROJETO.vertracloud.app/auth/github/callback`
+   
+   ⚠️ **Substitua** `SEU-PROJETO` pelo nome real do seu projeto!
 4. Clique em **"Register application"**
 5. Copie o **Client ID**
 6. Clique em **"Generate a new client secret"** e copie
@@ -35,8 +47,8 @@ Antes de hospedar no VertraCloud, você precisa configurar aplicações OAuth no
 No painel do VertraCloud, adicione as seguintes variáveis de ambiente:
 
 ```bash
-# URL do seu site
-CALLBACK_URL=https://seusite.vertracloud.com
+# URL do seu site (use a URL real do seu projeto VertraCloud)
+CALLBACK_URL=https://SEU-PROJETO.vertracloud.app
 
 # Gere um segredo forte (execute no terminal):
 # node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
