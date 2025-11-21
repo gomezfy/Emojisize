@@ -97,9 +97,10 @@ passport.deserializeUser((user, done) => {
 
 // Configuração Discord OAuth
 if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
-    const callbackURL = process.env.CALLBACK_URL 
-        ? `${process.env.CALLBACK_URL}/auth/discord/callback`
-        : 'http://localhost:5000/auth/discord/callback';
+    const baseURL = process.env.CALLBACK_URL 
+        ? process.env.CALLBACK_URL.replace(/\/$/, '')
+        : 'http://localhost:5000';
+    const callbackURL = `${baseURL}/auth/discord/callback`;
 
     passport.use(new DiscordStrategy({
         clientID: process.env.DISCORD_CLIENT_ID,
@@ -125,9 +126,10 @@ if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
 
 // Configuração GitHub OAuth
 if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
-    const callbackURL = process.env.CALLBACK_URL 
-        ? `${process.env.CALLBACK_URL}/auth/github/callback`
-        : 'http://localhost:5000/auth/github/callback';
+    const baseURL = process.env.CALLBACK_URL 
+        ? process.env.CALLBACK_URL.replace(/\/$/, '')
+        : 'http://localhost:5000';
+    const callbackURL = `${baseURL}/auth/github/callback`;
 
     passport.use(new GitHubStrategy({
         clientID: process.env.GITHUB_CLIENT_ID,
