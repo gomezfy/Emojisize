@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNGshrink - Redimensionador de Imagens</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #000;
+            color: #e7e9ea;
+            min-height: 100vh;
+        }
+
+        .header {
+            border-bottom: 1px solid #2f3336;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1d9bf0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            color: #e7e9ea;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .logout-btn {
+            background: transparent;
+            color: #1d9bf0;
+            border: 1px solid #1d9bf0;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(29, 155, 240, 0.1);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        h1 {
+            font-size: 31px;
+            font-weight: 800;
+            color: #e7e9ea;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #71767b;
+            font-size: 15px;
+            margin-bottom: 24px;
+        }
+
+        .access-timer-container {
+            background: rgba(29, 155, 240, 0.1);
+            border: 1px solid #1d9bf0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .access-timer-container.hidden {
+            display: none;
+        }
+
+        .access-timer {
+            color: #1d9bf0;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .info-box {
+            background: #16181c;
+            border: 1px solid #2f3336;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .info-box h3 {
+            color: #e7e9ea;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #71767b;
+            line-height: 1.6;
+        }
+
+        .info-box ul li {
+            margin-bottom: 4px;
+        }
+
+        .size-selector {
+            background: #16181c;
+            border: 1px solid #2f3336;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .size-selector h3 {
+            color: #e7e9ea;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .size-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .size-option {
+            background: transparent;
+            color: #1d9bf0;
+            border: 1px solid #1d9bf0;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .size-option:hover {
+            background: rgba(29, 155, 240, 0.1);
+        }
+
+        .size-option.active {
+            background: #1d9bf0;
+            color: #fff;
+        }
+
+        .upload-area {
+            border: 2px dashed #2f3336;
+            border-radius: 16px;
+            padding: 48px;
+            text-align: center;
+            margin-bottom: 16px;
+            background: #16181c;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: #1d9bf0;
+            background: rgba(29, 155, 240, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #1d9bf0;
+            background: rgba(29, 155, 240, 0.1);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .upload-area h3 {
+            color: #e7e9ea;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .upload-area p {
+            color: #71767b;
+            font-size: 15px;
+        }
+
+        .btn {
+            background: #1d9bf0;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #1a8cd8;
+        }
+
+        .btn:active {
+            background: #1570b3;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-container {
+            display: none;
+            background: #16181c;
+            border: 1px solid #2f3336;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .progress-container.active {
+            display: block;
+        }
+
+        .progress-text {
+            color: #e7e9ea;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .progress-bar-wrapper {
+            background: #2f3336;
+            border-radius: 9999px;
+            height: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: #1d9bf0;
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .emoji-card {
+            background: #16181c;
+            border: 1px solid #2f3336;
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .emoji-card:hover {
+            border-color: #1d9bf0;
+            background: rgba(29, 155, 240, 0.05);
+        }
+
+        .emoji-preview {
+            width: 128px;
+            height: 128px;
+            margin: 0 auto 12px;
+            background: #000;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #2f3336;
+            overflow: hidden;
+        }
+
+        .emoji-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .emoji-name {
+            font-weight: 700;
+            color: #e7e9ea;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+
+        .emoji-size {
+            font-size: 13px;
+            color: #71767b;
+        }
+
+        .download-all {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .ad-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ad-modal.active {
+            display: flex;
+        }
+
+        .ad-content {
+            background: #16181c;
+            border: 1px solid #2f3336;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .ad-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .ad-title {
+            color: #e7e9ea;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .ad-description {
+            color: #71767b;
+            font-size: 15px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .ad-description strong {
+            color: #1d9bf0;
+        }
+
+        .ad-placeholder {
+            background: #000;
+            border: 2px dashed #2f3336;
+            border-radius: 16px;
+            padding: 48px 24px;
+            margin: 24px 0;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ad-timer {
+            color: #1d9bf0;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .ad-watch-btn {
+            background: #1d9bf0;
+            color: #fff;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 9999px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .ad-watch-btn:hover {
+            background: #1a8cd8;
+        }
+
+        .ad-watch-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .locked-overlay {
+            pointer-events: none;
+            opacity: 0.4;
+            filter: blur(3px);
+        }
+
+        .locked-overlay.unlocked {
+            pointer-events: all;
+            opacity: 1;
+            filter: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+
+            .upload-area {
+                padding: 32px 16px;
+            }
+
+            .preview-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 12px;
+            }
+
+            .ad-content {
+                padding: 24px 16px;
+            }
+
+            .ad-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar"></div>
+                <span class="user-name" id="userName"></span>
+            </div>
+            <form action="/logout" method="POST" style="margin: 0;">
+                <input type="hidden" name="_csrf" id="csrfTokenLogout">
+                <button type="submit" class="logout-btn">Sair</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Redimensionar Imagens</h1>
+        <p class="subtitle">Otimize suas imagens de forma rápida e fácil</p>
+
+        <div class="access-timer-container hidden" id="accessTimerContainer">
+            <span>⏱️</span>
+            <span class="access-timer" id="accessTimer"></span>
+        </div>
+
+        <div id="contentArea">
+            <div class="info-box">
+                <h3>Como usar</h3>
+                <ul>
+                    <li>Escolha o tamanho desejado (128px é ideal para Discord)</li>
+                    <li>Arraste ou clique para fazer upload das imagens</li>
+                    <li>Baixe individualmente ou todas de uma vez</li>
+                </ul>
+            </div>
+
+            <div class="size-selector">
+                <h3>Tamanho de saída</h3>
+                <div class="size-options">
+                    <button class="size-option active" data-size="128">128x128</button>
+                    <button class="size-option" data-size="256">256x256</button>
+                    <button class="size-option" data-size="512">512x512</button>
+                    <button class="size-option" data-size="1024">1024x1024</button>
+                </div>
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" multiple accept="image/*">
+                <div class="upload-icon">📁</div>
+                <h3>Clique ou arraste imagens aqui</h3>
+                <p>Suporta PNG, JPG, GIF e outros formatos</p>
+            </div>
+
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-text" id="progressText">Processando...</div>
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="preview-grid" id="previewGrid"></div>
+
+            <div class="download-all" id="downloadSection" style="display: none;">
+                <button class="btn" id="downloadAllBtn">Baixar Todas</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="ad-modal" id="adModal">
+        <div class="ad-content">
+            <div class="ad-icon">🎬</div>
+            <h2 class="ad-title">Assista um Anúncio</h2>
+            <p class="ad-description">
+                Para desbloquear acesso por <strong>30 minutos</strong>, assista a um anúncio de 30 segundos
+            </p>
+
+            <div class="ad-placeholder" id="adPlaceholder">
+                <div class="ad-timer" id="adCountdown">30</div>
+                <p style="color: #71767b;">Anúncio carregando...</p>
+            </div>
+
+            <button class="ad-watch-btn" id="watchAdBtn">Assistir Anúncio</button>
+            
+            <p style="color: #71767b; margin-top: 16px; font-size: 13px;">
+                💡 Configure seu Google AdSense ID para monetização real
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let selectedSize = 128;
+        let processedImages = [];
+
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/api/user', {
+                    credentials: 'include'
+                });
+                const user = await response.json();
+                
+                const userAvatar = document.getElementById('userAvatar');
+                const userName = document.getElementById('userName');
+                
+                if (user.avatar) {
+                    userAvatar.innerHTML = `<img src="${user.avatar}" alt="${user.username}">`;
+                } else {
+                    userAvatar.textContent = user.username.charAt(0).toUpperCase();
+                }
+                
+                userName.textContent = '@' + user.username;
+            } catch (error) {
+                console.error('Erro ao carregar informações do usuário:', error);
+            }
+        }
+
+        async function loadCsrfToken() {
+            try {
+                const response = await fetch('/api/csrf-token', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                document.getElementById('csrfTokenLogout').value = data.csrfToken;
+            } catch (error) {
+                console.error('Error loading CSRF token:', error);
+            }
+        }
+
+        document.querySelectorAll('.size-option').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.size-option').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedSize = parseInt(btn.dataset.size);
+            });
+        });
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const previewGrid = document.getElementById('previewGrid');
+        const downloadSection = document.getElementById('downloadSection');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        async function handleFiles(files) {
+            processedImages = [];
+            previewGrid.innerHTML = '';
+            downloadSection.style.display = 'none';
+            progressContainer.classList.add('active');
+
+            const totalFiles = files.length;
+            let processedCount = 0;
+
+            for (const file of files) {
+                await processImage(file);
+                processedCount++;
+                const progress = (processedCount / totalFiles) * 100;
+                progressBar.style.width = progress + '%';
+                progressText.textContent = `Processando ${processedCount} de ${totalFiles}...`;
+            }
+
+            progressContainer.classList.remove('active');
+            if (processedImages.length > 0) {
+                downloadSection.style.display = 'block';
+            }
+        }
+
+        async function processImage(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = selectedSize;
+                        canvas.height = selectedSize;
+                        
+                        const ctx = canvas.getContext('2d');
+                        
+                        const scale = Math.min(selectedSize / img.width, selectedSize / img.height);
+                        const scaledWidth = img.width * scale;
+                        const scaledHeight = img.height * scale;
+                        const x = (selectedSize - scaledWidth) / 2;
+                        const y = (selectedSize - scaledHeight) / 2;
+                        
+                        ctx.clearRect(0, 0, selectedSize, selectedSize);
+                        ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+                        
+                        canvas.toBlob((blob) => {
+                            const url = URL.createObjectURL(blob);
+                            const fileName = file.name.replace(/\.[^/.]+$/, '') + '_' + selectedSize + 'x' + selectedSize + '.png';
+                            
+                            processedImages.push({ url, fileName, blob });
+                            
+                            const card = document.createElement('div');
+                            card.className = 'emoji-card';
+                            card.innerHTML = `
+                                <div class="emoji-preview">
+                                    <img src="${url}" alt="${fileName}">
+                                </div>
+                                <div class="emoji-name">${fileName}</div>
+                                <div class="emoji-size">${selectedSize}x${selectedSize} - ${(blob.size / 1024).toFixed(1)}KB</div>
+                            `;
+                            
+                            card.addEventListener('click', () => {
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.download = fileName;
+                                link.click();
+                            });
+                            
+                            previewGrid.appendChild(card);
+                            resolve();
+                        }, 'image/png');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        document.getElementById('downloadAllBtn').addEventListener('click', () => {
+            processedImages.forEach(({ url, fileName }) => {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.click();
+            });
+        });
+
+        let accessInterval = null;
+        let adCountdownInterval = null;
+        let csrfToken = '';
+
+        const adModal = document.getElementById('adModal');
+        const watchAdBtn = document.getElementById('watchAdBtn');
+        const adCountdown = document.getElementById('adCountdown');
+        const accessTimerContainer = document.getElementById('accessTimerContainer');
+        const accessTimer = document.getElementById('accessTimer');
+        const contentArea = document.getElementById('contentArea');
+
+        async function checkAccessStatus() {
+            try {
+                const response = await fetch('/api/access-status', {
+                    credentials: 'include'
+                });
+                
+                if (response.status === 401) {
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.hasAccess) {
+                    unlockContent();
+                    startAccessTimer(data.remainingTime);
+                } else {
+                    lockContent();
+                    showAdModal();
+                }
+            } catch (error) {
+                console.error('Erro ao verificar acesso:', error);
+            }
+        }
+
+        function lockContent() {
+            const lockableElements = [
+                contentArea,
+                document.getElementById('progressContainer'),
+                document.getElementById('uploadArea'),
+                document.getElementById('previewGrid'),
+                document.getElementById('downloadSection')
+            ];
+
+            lockableElements.forEach(el => {
+                if (el) el.classList.add('locked-overlay');
+            });
+        }
+
+        function unlockContent() {
+            const lockableElements = [
+                contentArea,
+                document.getElementById('progressContainer'),
+                document.getElementById('uploadArea'),
+                document.getElementById('previewGrid'),
+                document.getElementById('downloadSection')
+            ];
+
+            lockableElements.forEach(el => {
+                if (el) {
+                    el.classList.remove('locked-overlay');
+                    el.classList.add('unlocked');
+                }
+            });
+
+            hideAdModal();
+        }
+
+        function showAdModal() {
+            adModal.classList.add('active');
+        }
+
+        function hideAdModal() {
+            adModal.classList.remove('active');
+        }
+
+        function startAccessTimer(remainingSeconds) {
+            accessTimerContainer.classList.remove('hidden');
+            
+            if (accessInterval) {
+                clearInterval(accessInterval);
+            }
+
+            function updateTimer() {
+                if (remainingSeconds <= 0) {
+                    clearInterval(accessInterval);
+                    accessTimerContainer.classList.add('hidden');
+                    lockContent();
+                    showAdModal();
+                    return;
+                }
+
+                const minutes = Math.floor(remainingSeconds / 60);
+                const seconds = remainingSeconds % 60;
+                accessTimer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')} restantes`;
+                remainingSeconds--;
+            }
+
+            updateTimer();
+            accessInterval = setInterval(updateTimer, 1000);
+        }
+
+        watchAdBtn.addEventListener('click', async () => {
+            watchAdBtn.disabled = true;
+            watchAdBtn.textContent = 'Carregando...';
+
+            let countdown = 30;
+            adCountdown.textContent = countdown;
+
+            adCountdownInterval = setInterval(() => {
+                countdown--;
+                adCountdown.textContent = countdown;
+
+                if (countdown <= 0) {
+                    clearInterval(adCountdownInterval);
+                    grantAccess();
+                }
+            }, 1000);
+        });
+
+        async function grantAccess() {
+            try {
+                if (!csrfToken) {
+                    const tokenResponse = await fetch('/api/csrf-token', {
+                        credentials: 'include'
+                    });
+                    const tokenData = await tokenResponse.json();
+                    csrfToken = tokenData.csrfToken;
+                }
+
+                const grantResponse = await fetch('/api/grant-access', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'csrf-token': csrfToken
+                    },
+                    credentials: 'include'
+                });
+
+                if (!grantResponse.ok) {
+                    throw new Error('Falha ao conceder acesso');
+                }
+
+                const grantData = await grantResponse.json();
+
+                if (grantData.success) {
+                    unlockContent();
+                    startAccessTimer(30 * 60);
+                    watchAdBtn.disabled = false;
+                    watchAdBtn.textContent = 'Assistir Anúncio';
+                    adCountdown.textContent = '30';
+                }
+            } catch (error) {
+                console.error('Erro ao conceder acesso:', error);
+                watchAdBtn.disabled = false;
+                watchAdBtn.textContent = 'Tentar Novamente';
+                alert('Erro ao conceder acesso. Tente novamente.');
+            }
+        }
+
+        loadUserInfo();
+        loadCsrfToken();
+        checkAccessStatus();
+        setInterval(checkAccessStatus, 60000);
+    </script>
+</body>
+</html>
