@@ -5,8 +5,9 @@ Aplicação web para redimensionar emojis para o Discord Developer Portal. O sis
 
 ## Estado Atual
 - **Data**: 21 de Novembro de 2025
-- **Status**: Projeto configurado e funcional com autenticação segura
-- **Tecnologias**: Node.js, Express, bcryptjs, HTML/CSS/JavaScript vanilla, JSZip
+- **Status**: Projeto pronto para deploy no VertraWeb com autenticação OAuth completa
+- **Tecnologias**: Node.js, Express, Passport.js (Discord/GitHub OAuth), HTML/CSS/JavaScript vanilla, JSZip
+- **Deploy**: Configurado para VertraWeb (vertraweb.app)
 
 ## Arquitetura do Projeto
 ```
@@ -43,7 +44,7 @@ Aplicação web para redimensionar emojis para o Discord Developer Portal. O sis
   - Login: Máximo 5 tentativas em 15 minutos
   - Geral: Máximo 100 requisições por minuto
 - ✅ **Validação de Inputs**: Sanitização e validação com express-validator
-- 🔒 **Sessões Seguras**: Cookies httpOnly, sameSite strict, secret forte
+- 🔒 **Sessões Seguras**: Cookies httpOnly, sameSite lax (otimizado para OAuth), secret forte
 - 📏 **Limites de Payload**: Máximo 10MB para uploads
 - 🚫 **Content Security Policy**: Restrições de scripts e recursos externos
 - 🔑 **Hash de Senhas**: bcrypt com 12 rounds (salt automático)
@@ -92,7 +93,33 @@ O projeto está pronto para deploy na VertraCloud! Veja o arquivo `README-DEPLOY
 4. Configure variáveis de ambiente (SESSION_SECRET, PORT, NODE_ENV)
 5. Deploy automático!
 
+## Variáveis de Ambiente Necessárias (VertraWeb)
+```bash
+# Obrigatórias
+NODE_ENV=production
+PORT=5000
+SESSION_SECRET=(mínimo 32 caracteres aleatórios)
+CALLBACK_URL=https://emojisize.vertraweb.app
+
+# OAuth Discord
+DISCORD_CLIENT_ID=(do Discord Developer Portal)
+DISCORD_CLIENT_SECRET=(do Discord Developer Portal)
+
+# OAuth GitHub
+GITHUB_CLIENT_ID=(do GitHub Developer Settings)
+GITHUB_CLIENT_SECRET=(do GitHub Developer Settings)
+
+# Opcional
+ADMIN_USERS=(usernames ou IDs separados por vírgula)
+```
+
 ## Mudanças Recentes
+- 21/11/2025: **Correção OAuth para VertraWeb** 🔧
+  - Corrigido problema de redirecionamento OAuth (sameSite: lax)
+  - Correção de URLs de callback com barras duplas `//`
+  - Documentação completa para deploy no VertraWeb
+  - URLs corrigidas para `vertraweb.app` (não `vertracloud.app`)
+  - Arquivos criados: CHECK_OAUTH.md, CORRECAO_COOKIES.md, TROUBLESHOOTING.md
 - 21/11/2025: **Redesign completo no estilo X-Twitter** 🎨
   - Interface minimalista e moderna inspirada no Twitter/X
   - Fundo preto (#000) com elementos em azul (#1d9bf0)
